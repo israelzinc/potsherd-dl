@@ -1,0 +1,8 @@
+pytorch
+torchvision
+torchaudio
+pandas
+scikit-learn
+tqdm
+ipykernel
+albumentations
