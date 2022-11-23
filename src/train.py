@@ -16,74 +16,14 @@ import sys
 import torch
 import numpy as np
 import pandas as pd
-import albumentations as A
+
 
 from pprint import pprint
-from os.path import join
 from sklearn import metrics
 from lib import engine, models
-from lib.utils import Dict, Config
-from lib.dataset import Dataset
+from lib.utils import Dict, Config, create_data_loader, create_model
 from lib.es import EarlyStopping
 
-
-def get_paths_labels(csv_path: Dict, val_fold: int) -> tuple:
-    df = pd.read_csv(csv_path)
-
-    df_train = df[df.kfold != val_fold].reset_index(drop=True)
-    df_val = df[df.kfold == val_fold].reset_index(drop=True)
-
-    # Return (1) path of train images, (2) path of val images, (3) train label, (4) val labels
-    return df_train.path.values, df_val.path.values, df_train.class_num.values, df_val.class_num.values
-
-
-def create_data_loader(conf: Dict) -> tuple:
-    train_imgs, val_imgs, train_targets, val_targets = get_paths_labels(
-        config.datasets.train.csv,
-        config.datasets.train.val_fold
-    )
-
-    train_aug = A.Compose(
-        [
-            A.SmallestMaxSize(conf.model.size),
-            A.CenterCrop(conf.model.size[0], conf.model.size[1]),
-            A.augmentations.transforms.Normalize()
-        ]
-    )
-
-    val_aug = A.Compose(
-        [
-            A.SmallestMaxSize(conf.model.size),
-            A.CenterCrop(conf.model.size[0], conf.model.size[1]),
-            A.augmentations.transforms.Normalize()
-        ]
-    )
-
-    train_loader = torch.utils.data.DataLoader(
-        Dataset(train_imgs, train_targets, augmentations=train_aug, channel_first=True),
-        batch_size=conf.DataLoader.batch_size,
-        num_workers=conf.DataLoader.num_workers,
-        shuffle=True
-    )
-
-    val_loader = torch.utils.data.DataLoader(
-        Dataset(val_imgs, val_targets, augmentations=val_aug, channel_first=True),
-        batch_size=conf.DataLoader.batch_size,
-        num_workers=conf.DataLoader.num_workers,
-        shuffle=None
-    )
-
-    return train_loader, val_loader, train_targets, val_targets
-
-
-def create_model(conf: Dict) -> tuple:
-    model = models.select(conf.model.type, conf.model.n_classes)
-    model = model.to(device=conf.model.device)
-
-    model_path = join(conf.model.dir,
-                      f"{conf.model.id}_{conf.model.type}_{conf.model.size[0]}_{conf.model.size[1]}_{config.datasets.train.val_fold}.bin")
-
-    return model, model_path
 
 
 def train(conf: Dict):

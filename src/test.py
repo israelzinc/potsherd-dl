@@ -11,7 +11,7 @@ from sklearn.metrics import classification_report
 from os.path import join
 from lib import engine, models
 from lib.dataset import Dataset
-from lib.utils import Dict, Config, confusion_matrix
+from lib.utils import Dict, Config, print_confusion_matrix
 from sklearn.preprocessing import LabelEncoder
 
 
@@ -74,7 +74,7 @@ def test(conf: Dict, datasets_csv: str):
     print("classification_report")
     print(classification_report(df.class_num.values, final_preds))
     print("Confusion Matrix (row/col = act/pred)")
-    print(confusion_matrix(df.class_num.values, final_preds))
+    print(print_confusion_matrix(df.class_num.values, final_preds))
 
     # Create Label Encoders
     le = LabelEncoder()

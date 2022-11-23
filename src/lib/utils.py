@@ -1,7 +1,11 @@
 import json
 import numpy as np
 import pandas as pd
-
+import torch
+from lib.dataset import Dataset
+from lib import models
+import albumentations as A
+import os
 
 class Dict(dict):
     """dot.notation access to dictionary attributes"""
@@ -40,7 +44,7 @@ class Config(object):
         return result
 
 
-def confusion_matrix(y: np.ndarray, y_pred: np.ndarray) -> pd.DataFrame:
+def print_confusion_matrix(y: np.ndarray, y_pred: np.ndarray) -> pd.DataFrame:
     y_labels = np.unique(y)
     y_pred_labels = np.unique(y_pred)
 
@@ -51,3 +55,60 @@ def confusion_matrix(y: np.ndarray, y_pred: np.ndarray) -> pd.DataFrame:
         matrix.loc[c, p] += 1
 
     return matrix
+
+def get_paths_labels(csv_path: str, val_fold: int) -> tuple:
+    df = pd.read_csv(csv_path)
+
+    df_train = df[df.kfold != val_fold].reset_index(drop=True)
+    df_val = df[df.kfold == val_fold].reset_index(drop=True)
+
+    # Return (1) path of train images, (2) path of val images, (3) train label, (4) val labels
+    return df_train.path.values, df_val.path.values, df_train.class_num.values, df_val.class_num.values
+
+
+def create_data_loader(config: Dict) -> tuple:
+    train_imgs, val_imgs, train_targets, val_targets = get_paths_labels(
+        config.datasets.train.csv,
+        config.datasets.train.val_fold
+    )
+
+    train_aug = A.Compose(
+        [
+            A.SmallestMaxSize(config.model.size),
+            A.CenterCrop(config.model.size[0], config.model.size[1]),
+            A.augmentations.transforms.Normalize()
+        ]
+    )
+
+    val_aug = A.Compose(
+        [
+            A.SmallestMaxSize(config.model.size),
+            A.CenterCrop(config.model.size[0], config.model.size[1]),
+            A.augmentations.transforms.Normalize()
+        ]
+    )
+
+    train_loader = torch.utils.data.DataLoader(
+        Dataset(train_imgs, train_targets, augmentations=train_aug, channel_first=True),
+        batch_size=config.DataLoader.batch_size,
+        num_workers=config.DataLoader.num_workers,
+        shuffle=True
+    )
+
+    val_loader = torch.utils.data.DataLoader(
+        Dataset(val_imgs, val_targets, augmentations=val_aug, channel_first=True),
+        batch_size=config.DataLoader.batch_size,
+        num_workers=config.DataLoader.num_workers,
+        shuffle=None
+    )
+
+    return train_loader, val_loader, train_targets, val_targets
+
+def create_model(config: Dict) -> tuple:
+    model = models.select(config.model.type, config.model.n_classes)
+    model = model.to(device=config.model.device)
+
+    model_path = os.path.join(config.model.dir,
+                      f"{config.model.id}_{config.model.type}_{config.model.size[0]}_{config.model.size[1]}_{config.datasets.train.val_fold}.bin")
+
+    return model, model_path
