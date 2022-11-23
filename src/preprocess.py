@@ -28,14 +28,13 @@ from sklearn.preprocessing import LabelEncoder
 
 def get_targets(f: str) -> str:
     # Get 'target' from '/some/path/of/target_with_id.ext'
-    file_name = basename(f).split('.')[0]  # target_with_id
-    print(f'File Name: {file_name}')
-    return file_name.split('_')[0]  # target
+    file_name = basename(f).split('.')[0]  # target_with_id    
+    return file_name.split('_')[1]  # target
 
 
-def get_target_paths(input_dir: str) -> tuple:
-    target_paths = glob(input_dir)
-    targets = [get_targets(f) for f in target_paths]
+def get_target_paths(input_dir: str) -> tuple:    
+    target_paths = glob(input_dir)    
+    targets = [get_targets(f) for f in target_paths]    
     return target_paths, targets
 
 
@@ -125,5 +124,5 @@ if __name__ == '__main__':
         create_train_csv(datasets.train, datasets.label_encoder)
         print('Creating Train CSV')
         create_test_csv(datasets.test, datasets.label_encoder)
-        print('Creating Jomon CSV')
-        create_test_csv(datasets.real, datasets.label_encoder)
+        # print('Creating Jomon CSV')
+        # create_test_csv(datasets.real, datasets.label_encoder)
