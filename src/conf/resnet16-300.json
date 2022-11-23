@@ -11,7 +11,7 @@
         "csv": "../input/processed/test.csv"
       },
       "real": {
-        "dir": "../input/processed/real/*[jpg,tif]",
+        "dir": "../input/real_cleaned/*[jpg,tif]",
         "csv": "../input/processed/real.csv"
       },
       "label_encoder": "../input/label_encoder.npy"
