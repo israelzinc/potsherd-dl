@@ -29,6 +29,7 @@ from sklearn.preprocessing import LabelEncoder
 def get_targets(f: str) -> str:
     # Get 'target' from '/some/path/of/target_with_id.ext'
     file_name = basename(f).split('.')[0]  # target_with_id
+    print(f'File Name: {file_name}')
     return file_name.split('_')[0]  # target
 
 
