@@ -29,7 +29,7 @@ from lib.es import EarlyStopping
 def train(conf: Dict, fold=None):
     
     train_loader, valid_loader, _, valid_targets = create_data_loader(conf, fold)
-    model, model_path = create_model(conf)
+    model, model_path = create_model(conf, fold)
 
     optimizer = torch.optim.Adam(
         model.parameters(),
@@ -48,7 +48,9 @@ def train(conf: Dict, fold=None):
         mode=conf.scheduler.mode
     )
 
-    print('training....')
+    print('Training....')
+    if fold is not None:
+        print(f'Fold = {fold}.')
     for epoch in range(conf.training.epoch):
 
         training_loss = engine.train_fn(
@@ -99,4 +101,7 @@ if __name__ == '__main__':
     # config.model.device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")  # Use 2nd GPU
     # M1/M2 macs
     # config.model.device = torch.device("mps")  # Use M family
-    train(config)
+    # train(config)
+    folds = int(config.datasets.train.num_folds)
+    for f in range(0,folds):    
+        train(config,f)
