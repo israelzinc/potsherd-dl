@@ -34,10 +34,10 @@
       "weight_decay": 0.0001
     },
     "scheduler": {
-      "patience": 30,
+      "patience": 5,
       "mode": "max"
     },
     "training": {
-      "epoch": 500
+      "epoch": 50
     }
   }
