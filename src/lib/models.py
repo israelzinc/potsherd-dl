@@ -20,7 +20,8 @@ def select(model_type: str, num_classes: int):
 class Resnet18(nn.Module):
     def __init__(self, num_classes):
         super(Resnet18, self).__init__()
-        self.convnet = torchvision.models.resnet18(weights=torchvision.models.ResNet18_Weights.IMAGENET1K_V1)
+        # self.convnet = torchvision.models.resnet18(weights=torchvision.models.ResNet18_Weights.IMAGENET1K_V1)
+        self.convnet = torchvision.models.resnet18(pretrained=True)
         self.convnet.fc = nn.Linear(512, num_classes)
 
     def loss(self, outputs, targets):

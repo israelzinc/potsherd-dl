@@ -65,11 +65,19 @@ def get_paths_labels(csv_path: str, val_fold: int) -> tuple:
     # Return (1) path of train images, (2) path of val images, (3) train label, (4) val labels
     return df_train.path.values, df_val.path.values, df_train.class_num.values, df_val.class_num.values
 
+def create_data_loader(config: Dict, fold=None) -> tuple:
 
-def create_data_loader(config: Dict) -> tuple:
+    if not fold:
+        fold = config.datasets.train.val_fold
+    
+    # train_imgs, val_imgs, train_targets, val_targets = get_paths_labels(
+    #     config.datasets.train.csv,
+    #     config.datasets.train.val_fold
+    # )
+
     train_imgs, val_imgs, train_targets, val_targets = get_paths_labels(
         config.datasets.train.csv,
-        config.datasets.train.val_fold
+        fold
     )
 
     train_aug = A.Compose(
@@ -104,11 +112,15 @@ def create_data_loader(config: Dict) -> tuple:
 
     return train_loader, val_loader, train_targets, val_targets
 
-def create_model(config: Dict) -> tuple:
+def create_model(config: Dict, fold=None) -> tuple:
+    if not fold:
+        fold = config.datasets.train.val_fold
     model = models.select(config.model.type, config.model.n_classes)
     model = model.to(device=config.model.device)
 
+    # model_path = os.path.join(config.model.dir,
+    #                   f"{config.model.id}_{config.model.type}_{config.model.size[0]}_{config.model.size[1]}_{config.datasets.train.val_fold}.bin")
     model_path = os.path.join(config.model.dir,
-                      f"{config.model.id}_{config.model.type}_{config.model.size[0]}_{config.model.size[1]}_{config.datasets.train.val_fold}.bin")
+                      f"{config.model.id}_{config.model.type}_{config.model.size[0]}_{config.model.size[1]}_{fold}.bin")
 
     return model, model_path
