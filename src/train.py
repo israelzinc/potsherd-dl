@@ -26,9 +26,11 @@ from lib.es import EarlyStopping
 
 
 
-def train(conf: Dict):
-    train_loader, valid_loader, _, valid_targets = create_data_loader(conf)
+def train(conf: Dict, fold=None):
+    
+    train_loader, valid_loader, _, valid_targets = create_data_loader(conf, fold)
     model, model_path = create_model(conf)
+
     optimizer = torch.optim.Adam(
         model.parameters(),
         lr=conf.optimizer.learning_rate,
@@ -93,6 +95,8 @@ if __name__ == '__main__':
     print("Configuration")
     pprint(config)    
     
-    config.model.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")  # Use 1st GPU
+    config.model.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")  # Use 1st GPU    
     # config.model.device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")  # Use 2nd GPU
+    # M1/M2 macs
+    # config.model.device = torch.device("mps")  # Use M family
     train(config)
