@@ -90,13 +90,35 @@ def test_one(conf: Dict):
     # print("Labels")
     # pprint(list(zip(labels_num, labels)))
 
+def print_report(config_files, final_preds):
+    conf = config_files[0]
+    datasets_csv = conf.datasets.test.csv
+    df = pd.read_csv(datasets_csv)
+    print("classification_report")
+    print(classification_report(df.class_num.values, final_preds))
+    print("Confusion Matrix (row/col = act/pred)")
+    print(print_confusion_matrix(df.class_num.values, final_preds))
+
+    # Create Label Encoders
+    le = LabelEncoder()
+    le.classes_ = np.load(conf.datasets.label_encoder)
+    labels_num = list(range(conf.model.n_classes))
+    labels = le.inverse_transform(labels_num)
+    print("Labels")
+    pprint(list(zip(labels_num, labels)))
+
 def test(config_files):
     total_predictions = []
     for config_file in config_files:
         preds = test_one(config_file)
-        total_predictions.append(preds)
-    print(total_predictions)
-    print(len(total_predictions))
+        total_predictions.append(preds)    
+    
+    total_predictions = np.vstack(total_predictions)
+    
+    print(f'Total of {len(total_predictions)} predictions made for the dataset')    
+    total_predictions = sum(total_predictions)/len(total_predictions)    
+    final_preds = [np.argmax(p) for p in total_predictions]
+    print_report(config_files, final_preds)
 
 
 if __name__ == '__main__':
@@ -104,6 +126,7 @@ if __name__ == '__main__':
         print("Path[s] of configuration file[s] needed.")
         exit(1)
 
+    config_files = []
     for arg in sys.argv[1:]:
         print(f'Loading configuration "{arg}"')
         config = Config.load_json(arg)
@@ -112,9 +135,11 @@ if __name__ == '__main__':
 
         # config.model.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")  # Use 1st GPU
         config.model.device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")  # Use 2nd GPU
+        
+        config_files.append(config)
 
-        print("Evaluate using testing dataset.")
-        # test(config, config.datasets.test.csv)
-        test([config])
-        # print("Evaluate using real dataset.")
-        # test(config, config.datasets.real.csv)
+    print("Evaluate using testing dataset.")
+    # test(config, config.datasets.test.csv)
+    test(config_files)
+    # print("Evaluate using real dataset.")
+    # test(config, config.datasets.real.csv)

@@ -103,5 +103,6 @@ if __name__ == '__main__':
     # config.model.device = torch.device("mps")  # Use M family
     # train(config)
     folds = int(config.datasets.train.num_folds)
-    for f in range(0,folds):    
+    
+    for f in range(0,folds):            
         train(config,f)

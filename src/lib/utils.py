@@ -113,7 +113,7 @@ def create_data_loader(config: Dict, fold=None) -> tuple:
     return train_loader, val_loader, train_targets, val_targets
 
 def create_model(config: Dict, fold=None) -> tuple:
-    if not fold:
+    if fold is None:
         fold = config.datasets.train.val_fold
     model = models.select(config.model.type, config.model.n_classes)
     model = model.to(device=config.model.device)
@@ -126,7 +126,7 @@ def create_model(config: Dict, fold=None) -> tuple:
     return model, model_path
 
 def load_model(conf: Dict, fold=None):
-    if not fold:
+    if fold is None:
         fold = conf.datasets.train.val_fold
     model = models.select(conf.model.type, conf.model.n_classes)
     model_path = os.path.join(conf.model.dir,
