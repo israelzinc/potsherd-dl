@@ -11,21 +11,21 @@ from sklearn.metrics import classification_report
 from os.path import join
 from lib import engine, models
 from lib.dataset import Dataset
-from lib.utils import Dict, Config, print_confusion_matrix
+from lib.utils import Dict, Config, print_confusion_matrix, load_model, get_test_folds
 from sklearn.preprocessing import LabelEncoder
 
 
-def load_model(conf: Dict):
-    model = models.select(conf.model.type, conf.model.n_classes)
-    model_path = join(conf.model.dir,
-                      f"{conf.model.id}_{conf.model.type}_{conf.model.size[0]}_{conf.model.size[1]}_{config.datasets.train.val_fold}.bin")
-    model.load_state_dict(torch.load(
-        model_path,
-        map_location=lambda storage, loc: storage.cuda() if torch.cuda.is_available() else 'cpu')
-    )
-    model.to(conf.model.device)
+# def load_model(conf: Dict):
+#     model = models.select(conf.model.type, conf.model.n_classes)
+#     model_path = join(conf.model.dir,
+#                       f"{conf.model.id}_{conf.model.type}_{conf.model.size[0]}_{conf.model.size[1]}_{config.datasets.train.val_fold}.bin")
+#     model.load_state_dict(torch.load(
+#         model_path,
+#         map_location=lambda storage, loc: storage.cuda() if torch.cuda.is_available() else 'cpu')
+#     )
+#     model.to(conf.model.device)
 
-    return model
+#     return model
 
 
 def predict(conf, test_images, model):
@@ -63,26 +63,40 @@ def predict(conf, test_images, model):
     return p
 
 
-def test(conf: Dict, datasets_csv: str):
+def test_one(conf: Dict):
+    datasets_csv = conf.datasets.test.csv
     df = pd.read_csv(datasets_csv)
     test_images = df.path.values.tolist()
 
-    model = load_model(conf)
-    preds = predict(conf, test_images, model)
-    final_preds = [np.argmax(p) for p in preds]
+    folds = get_test_folds(conf)
+    total_preds = []
+    for f in folds:
+        model = load_model(conf, f)
+        preds = predict(conf, test_images, model)
+        total_preds.append(preds)
+        # final_preds = [np.argmax(p) for p in preds]
 
-    print("classification_report")
-    print(classification_report(df.class_num.values, final_preds))
-    print("Confusion Matrix (row/col = act/pred)")
-    print(print_confusion_matrix(df.class_num.values, final_preds))
+    return total_preds
+    # print("classification_report")
+    # print(classification_report(df.class_num.values, final_preds))
+    # print("Confusion Matrix (row/col = act/pred)")
+    # print(print_confusion_matrix(df.class_num.values, final_preds))
 
-    # Create Label Encoders
-    le = LabelEncoder()
-    le.classes_ = np.load(conf.datasets.label_encoder)
-    labels_num = list(range(conf.model.n_classes))
-    labels = le.inverse_transform(labels_num)
-    print("Labels")
-    pprint(list(zip(labels_num, labels)))
+    # # Create Label Encoders
+    # le = LabelEncoder()
+    # le.classes_ = np.load(conf.datasets.label_encoder)
+    # labels_num = list(range(conf.model.n_classes))
+    # labels = le.inverse_transform(labels_num)
+    # print("Labels")
+    # pprint(list(zip(labels_num, labels)))
+
+def test(config_files):
+    total_predictions = []
+    for config_file in config_files:
+        preds = test_one(config_file)
+        total_predictions.append(preds)
+    print(total_predictions)
+    print(len(total_predictions))
 
 
 if __name__ == '__main__':
@@ -100,6 +114,7 @@ if __name__ == '__main__':
         config.model.device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")  # Use 2nd GPU
 
         print("Evaluate using testing dataset.")
-        test(config, config.datasets.test.csv)
-        print("Evaluate using real dataset.")
-        test(config, config.datasets.real.csv)
+        # test(config, config.datasets.test.csv)
+        test([config])
+        # print("Evaluate using real dataset.")
+        # test(config, config.datasets.real.csv)

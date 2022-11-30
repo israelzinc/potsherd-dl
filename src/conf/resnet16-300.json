@@ -8,7 +8,8 @@
       },
       "test": {
         "dir": "../input/processed/test/*[jpg,tif]",
-        "csv": "../input/processed/test.csv"
+        "csv": "../input/processed/test.csv",
+        "folds":[0,1]
       },
       "real": {
         "dir": "../input/real_cleaned/*[jpg,tif]",

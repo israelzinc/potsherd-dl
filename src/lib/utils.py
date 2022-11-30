@@ -124,3 +124,28 @@ def create_model(config: Dict, fold=None) -> tuple:
                       f"{config.model.id}_{config.model.type}_{config.model.size[0]}_{config.model.size[1]}_{fold}.bin")
 
     return model, model_path
+
+def load_model(conf: Dict, fold=None):
+    if not fold:
+        fold = conf.datasets.train.val_fold
+    model = models.select(conf.model.type, conf.model.n_classes)
+    model_path = os.path.join(conf.model.dir,
+                      f"{conf.model.id}_{conf.model.type}_{conf.model.size[0]}_{conf.model.size[1]}_{fold}.bin")
+    
+    # model.load_state_dict(torch.load(
+    #     model_path,
+    #     map_location=lambda storage, loc: storage.cuda() if torch.cuda.is_available() else "cpu")
+    # )
+    model.load_state_dict(torch.load(
+        model_path,
+        map_location=conf.model.device)
+    )
+    model.to(conf.model.device)
+
+    return model
+
+def get_test_folds(config):
+    if "folds" in config.datasets.test:
+        return config.datasets.test.folds
+    
+    return range(0,config.datasets.train.num_folds)
