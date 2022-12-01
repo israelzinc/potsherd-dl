@@ -6,6 +6,8 @@ from lib.dataset import Dataset
 from lib import models
 import albumentations as A
 import os
+from typing import List, Tuple
+
 
 class Dict(dict):
     """dot.notation access to dictionary attributes"""
@@ -149,3 +151,23 @@ def get_test_folds(config):
         return config.datasets.test.folds
     
     return range(0,config.datasets.train.num_folds)
+
+def get_loader_with_augs(config: Dict, augmentations_list: A.transforms ,test_images: List[str]) -> torch.utils.data.DataLoader:
+    test_targets = np.zeros(len(test_images), dtype=np.int_)
+    augs = A.Compose(
+            augmentations_list
+        ) 
+    test_dataset = Dataset(
+        image_paths=test_images,
+        targets=test_targets,        
+        augmentations=augs,
+        channel_first = True,
+        torgb=True
+    )
+    test_loader = torch.utils.data.DataLoader(
+        test_dataset,
+        batch_size=config.DataLoader.batch_size,
+        num_workers=config.DataLoader.num_workers,
+        shuffle=False        
+    )
+    return test_loader

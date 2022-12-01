@@ -1,4 +1,4 @@
-{
+{    
     "datasets": {
       "train": {
         "dir": "../input/processed/train/*[jpg,tif]",
@@ -9,7 +9,8 @@
       "test": {
         "dir": "../input/processed/test/*[jpg,tif]",
         "csv": "../input/processed/test.csv",
-        "folds":[0,1]
+        "folds":[0,1],
+        "tta": true
       },
       "real": {
         "dir": "../input/real_cleaned/*[jpg,tif]",
