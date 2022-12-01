@@ -8,7 +8,7 @@ import albumentations as A
 import os
 from typing import List, Tuple
 
-
+DEFAULT_METRICS_FOLDER = "../metrics/"
 class Dict(dict):
     """dot.notation access to dictionary attributes"""
     __getattr__ = dict.__getitem__
@@ -171,3 +171,17 @@ def get_loader_with_augs(config: Dict, augmentations_list: A.transforms ,test_im
         shuffle=False        
     )
     return test_loader
+
+def store_metrics(config: Dict, metrics: Tuple[List, List], fold: int):
+    out_base = DEFAULT_METRICS_FOLDER
+    if "metrics" in config:
+        if "dir" in config.metrics:
+            out_base = config.metrics.dir
+
+    output_path = os.path.join(out_base,
+        f"{config.model.id}_{config.model.type}_{config.model.size[0]}_{config.model.size[1]}_{fold}.csv")
+
+    losses, accuracies = metrics
+    df = pd.DataFrame({"loss":losses,"acc":accuracies})
+
+    df.to_csv(output_path)

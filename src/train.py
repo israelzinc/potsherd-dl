@@ -21,7 +21,7 @@ import pandas as pd
 from pprint import pprint
 from sklearn import metrics
 from lib import engine, models
-from lib.utils import Dict, Config, create_data_loader, create_model
+from lib.utils import Dict, Config, create_data_loader, create_model, store_metrics
 from lib.es import EarlyStopping
 
 
@@ -51,11 +51,16 @@ def train(conf: Dict, fold=None):
     print('Training....')
     if fold is not None:
         print(f'Fold = {fold}.')
+    
+    losses = []
+    accuracies = []
     for epoch in range(conf.training.epoch):
-
+                
         training_loss = engine.train_fn(
             model, train_loader, optimizer, conf.model.device
         )
+
+        
 
         predictions, valid_loss = engine.evaluate(
             model, valid_loader, conf.model.device
@@ -74,6 +79,10 @@ def train(conf: Dict, fold=None):
         # acc = metrics.cohen_kappa_score(valid_targets, predictions, weights="quadratic")
         acc = metrics.accuracy_score(valid_targets, predictions)
 
+        # Store the results
+        losses.append(training_loss)
+        accuracies.append(acc)
+
         scheduler.step(acc)
         es(acc, model, model_path)
         if es.early_stop:
@@ -81,6 +90,7 @@ def train(conf: Dict, fold=None):
             break
 
         print(f"Model = {conf.model.type}, Epoch = {epoch}, acc={acc}")
+    return (losses, accuracies)
 
 
 if __name__ == '__main__':
@@ -103,6 +113,10 @@ if __name__ == '__main__':
     # config.model.device = torch.device("mps")  # Use M family
     # train(config)
     folds = int(config.datasets.train.num_folds)
+
+    
     
     for f in range(0,folds):            
-        train(config,f)
+        metrics = train(config,f)
+        store_metrics(config, metrics, f)        
+        

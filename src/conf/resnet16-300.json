@@ -41,5 +41,8 @@
     },
     "training": {
       "epoch": 50
+    },
+    "metrics": {
+      "dir": "../metrics/"
     }
   }
