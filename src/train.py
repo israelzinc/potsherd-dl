@@ -117,6 +117,6 @@ if __name__ == '__main__':
     
     
     for f in range(0,folds):            
-        metrics = train(config,f)
-        store_metrics(config, metrics, f)        
+        fold_metrics = train(config,f)
+        store_metrics(config, fold_metrics, f)        
         

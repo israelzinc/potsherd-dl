@@ -40,7 +40,7 @@
       "mode": "max"
     },
     "training": {
-      "epoch": 50
+      "epoch": 15
     },
     "metrics": {
       "dir": "../metrics/"
