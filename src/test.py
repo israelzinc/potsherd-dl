@@ -155,7 +155,7 @@ def test(config_files):
     print(f'Total of {number_predictions} predictions made for the test-set')    
     total_predictions = sum(total_predictions)/len(total_predictions)    
     final_preds = [np.argmax(p) for p in total_predictions]
-    # print_report(config_files, final_preds)
+    print_report(config_files, final_preds)
 
 
 if __name__ == '__main__':

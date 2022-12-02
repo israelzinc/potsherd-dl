@@ -105,7 +105,8 @@ class EfficientNetB0(nn.Module):
 class EfficientNetB7(nn.Module):
     def __init__(self, num_classes):
         super(EfficientNetB7, self).__init__()
-        self.base = torchvision.models.efficientnet_b7(weights=torchvision.models.EfficientNet_B7_Weights.IMAGENET1K_V1)
+        # self.base = torchvision.models.efficientnet_b7(weights=torchvision.models.EfficientNet_B7_Weights.IMAGENET1K_V1)
+        self.base = torchvision.models.efficientnet_b7(pretrained=True)
         self.base.classifier[1] = nn.Linear(2560, num_classes)
 
     def loss(self, outputs, targets):
