@@ -17,14 +17,14 @@
       "label_encoder": "../input/label_encoder.npy"
     },
     "model": {
-      "id": "EFFB7",
-      "type": "efficientnetb7",
+      "id": "R18",
+      "type": "resnet18",
       "dir": "../models/",
       "size": [400, 400],
       "n_classes": 7
     },
     "DataLoader": {
-      "batch_size": 8,
+      "batch_size": 12,
       "num_workers": 11
     },
     "optimizer": {
@@ -39,5 +39,8 @@
     },
     "training": {
       "epoch": 500
+    },
+    "metrics": {
+      "dir": "../metrics/"
     }
   }

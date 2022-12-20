@@ -1,4 +1,4 @@
-{
+{    
     "datasets": {
       "train": {
         "dir": "../input/processed/train/*[jpg,tif]",
@@ -8,24 +8,26 @@
       },
       "test": {
         "dir": "../input/processed/test/*[jpg,tif]",
-        "csv": "../input/processed/test.csv"
+        "csv": "../input/processed/test.csv",
+        "folds":[0,1],
+        "tta": true
       },
       "real": {
-        "dir": "../input/processed/real/*[jpg,tif]",
+        "dir": "../input/real_cleaned/*[jpg,tif]",
         "csv": "../input/processed/real.csv"
       },
       "label_encoder": "../input/label_encoder.npy"
     },
     "model": {
-      "id": "EFFB7",
-      "type": "efficientnetb7",
+      "id": "R152",
+      "type": "resnet152",
       "dir": "../models/",
       "size": [400, 400],
       "n_classes": 7
     },
     "DataLoader": {
-      "batch_size": 8,
-      "num_workers": 11
+      "batch_size": 12,
+      "num_workers": 8
     },
     "optimizer": {
       "learning_rate": 0.0001,
@@ -39,5 +41,8 @@
     },
     "training": {
       "epoch": 500
+    },
+    "metrics": {
+      "dir": "../metrics/"
     }
   }

@@ -20,7 +20,7 @@
       "id": "EFFB7",
       "type": "efficientnetb7",
       "dir": "../models/",
-      "size": [400, 400],
+      "size": [300, 300],
       "n_classes": 7
     },
     "DataLoader": {
@@ -39,5 +39,8 @@
     },
     "training": {
       "epoch": 500
-    }
+    },
+    "metrics": {
+        "dir": "../metrics/"
+      }
   }

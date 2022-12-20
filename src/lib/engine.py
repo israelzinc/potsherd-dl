@@ -4,17 +4,23 @@ import torch
 
 def train_fn(model, data_loader, optimizer, device):
     fin_loss = 0
+    correct = 0
+    total = 0
     model.train()
-    tk = tqdm(data_loader, total=len(data_loader))
+    tk = tqdm(data_loader, total=len(data_loader))    
     for data in tk:
         for k, v in data.items():
             data[k] = v.to(device)
         optimizer.zero_grad()
-        _, loss = model(**data)
+        outputs, loss = model(**data)
         loss.backward()
         optimizer.step()
-        fin_loss += loss.item()
-    return fin_loss / len(data_loader)
+        _, predicted = torch.max(outputs.data, 1)
+        labels = data["targets"]        
+        total += labels.size(0)
+        correct += (predicted == labels).sum().item()        
+        fin_loss += loss.item()    
+    return ((correct/total), fin_loss / len(data_loader))
 
 
 def evaluate(model, data_loader, device):
