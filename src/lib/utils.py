@@ -7,6 +7,7 @@ from lib import models
 import albumentations as A
 import os
 from typing import List, Tuple
+from PIL import Image
 
 DEFAULT_METRICS_FOLDER = "../metrics/"
 class Dict(dict):
@@ -133,7 +134,7 @@ def load_model(conf: Dict, fold=None):
     model = models.select(conf.model.type, conf.model.n_classes)
     model_path = os.path.join(conf.model.dir,
                       f"{conf.model.id}_{conf.model.type}_{conf.model.size[0]}_{conf.model.size[1]}_{fold}.bin")
-    
+        
     # model.load_state_dict(torch.load(
     #     model_path,
     #     map_location=lambda storage, loc: storage.cuda() if torch.cuda.is_available() else "cpu")
@@ -185,3 +186,71 @@ def store_metrics(config: Dict, metrics: Tuple[List, List], fold: int):
     df = pd.DataFrame({"loss":losses,"acc":accuracies})
 
     df.to_csv(output_path)
+
+def saitama(model, conf, image_path):
+    IMAGE_SIZE = conf.model.size[0]
+    device = conf.model.device  
+    image = Image.open(image_path)
+    image = image.convert("RGB")
+    # orig_image = image
+
+    # Set up the transformations
+    # transform_ = transforms.Compose([
+    #         transforms.Resize(IMAGE_SIZE),
+    #         transforms.CenterCrop(IMAGE_SIZE),            
+    #         transforms.ToTensor(),
+    # ])
+
+    image = np.array(image)
+    test_aug = A.Compose(
+            [
+                A.SmallestMaxSize(conf.model.size),
+                A.CenterCrop(conf.model.size[0], conf.model.size[1]),
+                A.augmentations.transforms.Normalize()
+            ]
+        )
+    augmented = test_aug(image=image)
+    image = augmented["image"]
+    orig_image = image
+    # # Transforms the image
+    # image = transform_(image)
+
+    # Reshape the image (because the model use 
+    # 4-dimensional tensor (batch_size, channel, width, height))
+    # image = image.reshape(1, 3, IMAGE_SIZE, IMAGE_SIZE)
+    
+    image = np.transpose(image, (2, 0, 1)).astype(np.float32)
+    
+    
+
+    # Set the device for the image
+    image = torch.tensor(image)
+    image = image.to(device)
+    
+    image = image.unsqueeze(0)
+    
+
+    # Set the requires_grad_ to the image for retrieving gradients
+    image.requires_grad_()
+
+    # Retrieve output from the image
+    output, _ = model(image)
+    
+    # Catch the output
+    output_idx = output.argmax()
+    output_max = output[0, output_idx]
+
+    print("Output index",output_idx)
+
+    # Do backpropagation to get the derivative of the output based on the image
+    output_max.backward()
+
+    # Retireve the saliency map and also pick the maximum value from channels on each pixel.
+    # In this case, we look at dim=1. Recall the shape (batch_size, channel, width, height)
+    saliency, _ = torch.max(image.grad.data.abs(), dim=1) 
+    saliency = saliency.reshape(IMAGE_SIZE, IMAGE_SIZE)
+
+    # Reshape the image
+    # image = image.reshape(-1, IMAGE_SIZE, IMAGE_SIZE)
+
+    return (orig_image, saliency, output_idx.cpu())

@@ -46,3 +46,37 @@ def predict(model, data_loader, device):
             predictions = predictions.cpu()
             final_predictions.append(predictions)
     return final_predictions
+
+
+def salient(model, data_loader, device):
+    model.eval()
+    final_preds = []
+    grads = []
+    tk0 = tqdm(data_loader, total=len(data_loader))
+    for data in tk0:
+        for key, value in data.items():
+            # print(f'K={key},V={value}')
+            data[key] = value.to(device)
+            # print("DATA KEY",data[key])
+            # data[key].require_grads()
+        # predictions, _ = model(**data)
+        output, _ = model(**data)
+        final_preds.append(output)
+        # print("OUTPUT SALIENCY",output)
+        # Catch the output
+        # output_idx = output.argmax()
+        # output_max = output[0, output_idx]
+        
+        # Do backpropagation to get the derivative of the output based on the image
+        # output_max.backward()
+
+        # # Retireve the saliency map and also pick the maximum value from channels on each pixel.
+        # # In this case, we look at dim=1. Recall the shape (batch_size, channel, width, height)
+        # saliency, _ = torch.max(image.grad.data.abs(), dim=1) 
+        # saliency = saliency.reshape(IMAGE_SIZE, IMAGE_SIZE)
+
+        # predictions = predictions.cpu()
+        # final_preds.append(predictions)
+    
+    return final_preds
+
