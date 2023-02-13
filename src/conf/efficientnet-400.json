@@ -4,7 +4,7 @@
         "dir": "../input/processed/train/*[jpg,tif]",
         "csv": "../input/processed/train.csv",
         "num_folds": 5,
-        "val_fold": 2
+        "val_fold": 1
       },
       "test": {
         "dir": "../input/processed/test/*[jpg,tif]",
@@ -38,6 +38,6 @@
       "mode": "max"
     },
     "training": {
-      "epoch": 100
+      "epoch": 500
     }
   }

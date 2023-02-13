@@ -182,8 +182,8 @@ def store_metrics(config: Dict, metrics: Tuple[List, List], fold: int):
     output_path = os.path.join(out_base,
         f"{config.model.id}_{config.model.type}_{config.model.size[0]}_{config.model.size[1]}_{fold}.csv")
 
-    losses, accuracies = metrics
-    df = pd.DataFrame({"loss":losses,"acc":accuracies})
+    (training_acc, training_loss,valid_acc,valid_loss) = metrics
+    df = pd.DataFrame({"epoch":range(0,len(training_acc)),"training_acc":training_acc,"training_loss":training_loss,"valid_acc":valid_acc, "valid_loss":valid_loss})
 
     df.to_csv(output_path)
 

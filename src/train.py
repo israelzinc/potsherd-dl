@@ -52,21 +52,25 @@ def train(conf: Dict, fold=None):
     if fold is not None:
         print(f'Fold = {fold}.')
     
-    losses = []
-    accuracies = []
+    validation_losses = []
+    validation_accuracies = []
+    training_losses = []
+    training_accuracies = []
     for epoch in range(conf.training.epoch):
                 
-        training_loss = engine.train_fn(
+        training_acc, training_loss = engine.train_fn(
             model, train_loader, optimizer, conf.model.device
         )
-
-        
+                
 
         predictions, valid_loss = engine.evaluate(
             model, valid_loader, conf.model.device
         )
+        
+        
         print(f'training_loss: {training_loss}')
         print(f'valid_loss: {valid_loss}')
+        print(f'training_accuracy: {training_acc}')
 
         # Unravel batches predictions
         preds = []
@@ -77,20 +81,22 @@ def train(conf: Dict, fold=None):
         predictions = np.vstack((predictions)).ravel()
 
         # acc = metrics.cohen_kappa_score(valid_targets, predictions, weights="quadratic")
-        acc = metrics.accuracy_score(valid_targets, predictions)
+        valid_acc = metrics.accuracy_score(valid_targets, predictions)
 
         # Store the results
-        losses.append(training_loss)
-        accuracies.append(acc)
+        training_accuracies.append(training_acc)
+        training_losses.append(training_loss)
+        validation_accuracies.append(valid_acc)
+        validation_losses.append(valid_loss)
 
-        scheduler.step(acc)
-        es(acc, model, model_path)
+        scheduler.step(valid_acc)
+        es(valid_acc, model, model_path)
         if es.early_stop:
             print("Early Stop")
             break
 
-        print(f"Model = {conf.model.type}, Epoch = {epoch}, acc={acc}")
-    return (losses, accuracies)
+        print(f"Model = {conf.model.type}, Epoch = {epoch}, acc={valid_acc}")
+    return (training_accuracies, training_losses,validation_accuracies,validation_losses)
 
 
 if __name__ == '__main__':
@@ -107,16 +113,15 @@ if __name__ == '__main__':
     print("Configuration")
     pprint(config)    
     
-    config.model.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")  # Use 1st GPU    
+    config.model.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")  # Use 1st GPU    
     # config.model.device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")  # Use 2nd GPU
     # M1/M2 macs
     # config.model.device = torch.device("mps")  # Use M family
     # train(config)
     folds = int(config.datasets.train.num_folds)
 
-    
-    
-    for f in range(0,folds):            
+        
+    for f in range(0,1):            
         fold_metrics = train(config,f)
         store_metrics(config, fold_metrics, f)        
         

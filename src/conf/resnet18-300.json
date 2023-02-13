@@ -3,7 +3,7 @@
       "train": {
         "dir": "../input/processed/train/*[jpg,tif]",
         "csv": "../input/processed/train.csv",
-        "num_folds": 10,
+        "num_folds": 5,
         "val_fold": 1
       },
       "test": {
@@ -36,11 +36,11 @@
       "weight_decay": 0.0001
     },
     "scheduler": {
-      "patience": 5,
+      "patience": 30,
       "mode": "max"
     },
     "training": {
-      "epoch": 15
+      "epoch": 500
     },
     "metrics": {
       "dir": "../metrics/"
