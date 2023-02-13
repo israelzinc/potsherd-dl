@@ -17,7 +17,7 @@
       "label_encoder": "../input/label_encoder.npy"
     },
     "model": {
-      "id": "EFFB7",
+      "id": "VGG11",
       "type": "vgg11",
       "dir": "../models/",
       "size": [300, 300],
