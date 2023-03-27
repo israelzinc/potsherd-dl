@@ -19,7 +19,7 @@
     "model": {
       "id": "EFFB7",
       "type": "efficientnetb7",
-      "dir": "../models/",
+      "dir": "../models_extra/",
       "size": [300, 300],
       "n_classes": 7
     },

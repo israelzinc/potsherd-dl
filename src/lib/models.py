@@ -13,6 +13,12 @@ def select(model_type: str, num_classes: int):
         return EfficientNetB0(num_classes)
     elif model_type == "efficientnetb7":
         return EfficientNetB7(num_classes)    
+    elif model_type == "efficientnetb7pro":
+        return EfficientNetB7Pro(num_classes)    
+    elif model_type == "efficientnetb7regl2":
+        return EfficientNetB7REGL2(num_classes)    
+    elif model_type == "efficientnetb7regl1":
+        return EfficientNetB7REGL1(num_classes)            
     else:
         raise ValueError(f"Unsupported model type.")
 
@@ -122,3 +128,82 @@ class EfficientNetB7(nn.Module):
             loss = self.loss(outputs, targets)
             return outputs, loss
         return outputs, None
+
+
+
+class EfficientNetB7Pro(nn.Module):
+    def __init__(self, num_classes):
+        super(EfficientNetB7Pro, self).__init__()
+        # self.base = torchvision.models.efficientnet_b7(weights=torchvision.models.EfficientNet_B7_Weights.IMAGENET1K_V1)
+        self.base = torchvision.models.efficientnet_b7(pretrained=True)
+        for param in self.base.parameters():
+            # print("PARAM!",param)
+            param.requires_grad = False
+
+        self.base.classifier[1] = nn.Linear(2560, num_classes)
+        self.base.classifier[1].require_grads = True
+
+    def loss(self, outputs, targets):
+        if targets is None:
+            return None
+        criterion = nn.CrossEntropyLoss()
+        loss = criterion(outputs, targets)
+        return loss
+
+    def forward(self, image, targets=None):
+        outputs = self.base(image)
+        if targets is not None:
+            loss = self.loss(outputs, targets)
+            return outputs, loss
+        return outputs, None
+
+class EfficientNetB7REGL2(nn.Module):
+    def __init__(self, num_classes):
+        super(EfficientNetB7REGL2, self).__init__()
+        # self.base = torchvision.models.efficientnet_b7(weights=torchvision.models.EfficientNet_B7_Weights.IMAGENET1K_V1)
+        self.base = torchvision.models.efficientnet_b7(pretrained=True)        
+        self.base.classifier[1] = nn.Linear(2560, num_classes)
+
+
+    def loss(self, outputs, targets):
+        if targets is None:
+            return None
+        criterion = nn.CrossEntropyLoss()
+        loss = criterion(outputs, targets)
+        l2_lambda = 0.001
+        l2_norm = sum(p.pow(2.0).sum() for p in self.base.parameters()) 
+        loss = loss + l2_lambda * l2_norm
+        return loss
+
+    def forward(self, image, targets=None):
+        outputs = self.base(image)
+        if targets is not None:
+            loss = self.loss(outputs, targets)
+            return outputs, loss
+        return outputs, None
+
+class EfficientNetB7REGL1(nn.Module):
+    def __init__(self, num_classes):
+        super(EfficientNetB7REGL1, self).__init__()
+        # self.base = torchvision.models.efficientnet_b7(weights=torchvision.models.EfficientNet_B7_Weights.IMAGENET1K_V1)
+        self.base = torchvision.models.efficientnet_b7(pretrained=True)        
+        self.base.classifier[1] = nn.Linear(2560, num_classes)
+
+
+    def loss(self, outputs, targets):
+        if targets is None:
+            return None
+        criterion = nn.CrossEntropyLoss()
+        loss = criterion(outputs, targets)
+        l2_lambda = 0.001
+        l2_norm = sum(p.abs().sum() for p in self.base.parameters()) 
+        loss = loss + l2_lambda * l2_norm
+        return loss
+
+    def forward(self, image, targets=None):
+        outputs = self.base(image)
+        if targets is not None:
+            loss = self.loss(outputs, targets)
+            return outputs, loss
+        return outputs, None
+

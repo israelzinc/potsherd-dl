@@ -7,6 +7,7 @@
         "val_fold": 1
       },
       "test": {
+        "tta":true,
         "dir": "../input/processed/test/*[jpg,tif]",
         "csv": "../input/processed/test.csv"
       },
@@ -39,5 +40,8 @@
     },
     "training": {
       "epoch": 500
+    },
+    "metrics": {
+      "dir": "../metrics_extra/"
     }
   }

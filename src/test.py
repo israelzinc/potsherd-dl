@@ -20,7 +20,8 @@ from sklearn.preprocessing import LabelEncoder
 def print_report(config_files, final_preds):
     conf = config_files[0]
     datasets_csv = conf.datasets.test.csv
-    df = pd.read_csv(datasets_csv,nrows=21)
+    # df = pd.read_csv(datasets_csv,nrows=21)
+    df = pd.read_csv(datasets_csv)
     print("classification_report")
     print(classification_report(df.class_num.values, final_preds))
     print("Confusion Matrix (row/col = act/pred)")
@@ -106,7 +107,8 @@ def test_one(conf: Dict):
     if "verbose" in conf:
         verbose = bool(conf.verbose)
     datasets_csv = conf.datasets.test.csv
-    df = pd.read_csv(datasets_csv,nrows=21)
+    # df = pd.read_csv(datasets_csv,nrows=21)
+    df = pd.read_csv(datasets_csv)
     test_images = df.path.values.tolist()
 
     folds = get_test_folds(conf)
@@ -170,8 +172,8 @@ if __name__ == '__main__':
         print("Configuration")
         pprint(config)
 
-        # config.model.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")  # Use 1st GPU
-        config.model.device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")  # Use 2nd GPU
+        config.model.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")  # Use 1st GPU
+        # config.model.device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")  # Use 2nd GPU
         
         config_files.append(config)
 
