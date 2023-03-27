@@ -1,0 +1,47 @@
+{
+    "datasets": {
+      "train": {
+        "dir": "../input/processed/train/*[jpg,tif]",
+        "csv": "../input/processed/train.csv",
+        "num_folds": 5,
+        "val_fold": 1
+      },
+      "test": {
+        "tta":true,
+        "dir": "../input/processed/test/*[jpg,tif]",
+        "csv": "../input/processed/test.csv"
+      },
+      "real": {
+        "dir": "../input/processed/real/*[jpg,tif]",
+        "csv": "../input/processed/real.csv"
+      },
+      "label_encoder": "../input/label_encoder.npy"
+    },
+    "model": {
+      "id": "EFFB7REGL2",
+      "type": "efficientnetb7regl2",
+      "dir": "../models_extra/",
+      "size": [400, 400],
+      "n_classes": 7
+    },
+    "DataLoader": {
+      "batch_size": 8,
+      "num_workers": 11
+    },
+    "optimizer": {
+      "learning_rate": 0.0001,
+      "betas": [0.8, 0.99],
+      "epsilon": 0.001,
+      "weight_decay": 0.0001
+    },
+    "scheduler": {
+      "patience": 30,
+      "mode": "max"
+    },
+    "training": {
+      "epoch": 500
+    },
+    "metrics": {
+        "dir": "../metrics_extra/"
+      }
+  }
