@@ -122,8 +122,8 @@ if __name__ == '__main__':
     
 
         
-    for f in range(0,5):            
-    # for f in range(0,1):            
+    # for f in range(0,5):            
+    for f in range(0,1):            
         fold_metrics = train(config,f)
         store_metrics(config, fold_metrics, f)        
         

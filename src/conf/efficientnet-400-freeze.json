@@ -18,8 +18,8 @@
       "label_encoder": "../input/label_encoder.npy"
     },
     "model": {
-      "id": "EFFB7REGL2",
-      "type": "efficientnetb7regl2",
+      "id": "EFFB7FREEZE",
+      "type": "efficientnetb7freeze",
       "dir": "../models/",
       "size": [400, 400],
       "n_classes": 7

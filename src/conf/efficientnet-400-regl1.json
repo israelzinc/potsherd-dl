@@ -7,7 +7,7 @@
         "val_fold": 1
       },
       "test": {
-        "tta":true,
+        "tta":false,        
         "dir": "../input/processed/test/*[jpg,tif]",
         "csv": "../input/processed/test.csv"
       },
@@ -20,7 +20,7 @@
     "model": {
       "id": "EFFB7REGL1",
       "type": "efficientnetb7regl1",
-      "dir": "../models_extra/",
+      "dir": "../models/",
       "size": [400, 400],
       "n_classes": 7
     },
@@ -35,13 +35,13 @@
       "weight_decay": 0.0001
     },
     "scheduler": {
-      "patience": 30,
+      "patience": 500,
       "mode": "max"
     },
     "training": {
-      "epoch": 500
+      "epoch": 2500
     },
     "metrics": {
-        "dir": "../metrics_extra/"
+        "dir": "../metrics/"
       }
   }

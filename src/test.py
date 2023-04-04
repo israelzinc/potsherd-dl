@@ -17,9 +17,13 @@ from lib.dataset import Dataset
 from lib.utils import Dict, Config, print_confusion_matrix, load_model, get_test_folds, get_loader_with_augs
 from sklearn.preprocessing import LabelEncoder
 
-def print_report(config_files, final_preds):
+def print_report(config_files, final_preds, test_real=False):
     conf = config_files[0]
     datasets_csv = conf.datasets.test.csv
+    
+    if test_real == True:
+        datasets_csv = conf.datasets.real.csv
+    
     # df = pd.read_csv(datasets_csv,nrows=21)
     df = pd.read_csv(datasets_csv)
     print("classification_report")
@@ -102,11 +106,13 @@ def predict(conf, test_images, model):
     return p
 
 
-def test_one(conf: Dict):
+def test_one(conf: Dict, test_real=False):
     verbose = False
     if "verbose" in conf:
         verbose = bool(conf.verbose)
     datasets_csv = conf.datasets.test.csv
+    if test_real == True:
+        datasets_csv = conf.datasets.real.csv
     # df = pd.read_csv(datasets_csv,nrows=21)
     df = pd.read_csv(datasets_csv)
     test_images = df.path.values.tolist()
@@ -136,7 +142,7 @@ def test_one(conf: Dict):
     return total_preds    
 
 
-def test(config_files):    
+def test(config_files, test_real=False):    
     total_predictions = []
     number_predictions = 0
     tta_multiplier = 3
@@ -146,7 +152,7 @@ def test(config_files):
             number_config_predictions = len(config_file.datasets.test.folds)
         if "tta" in config_file.datasets.test and bool(config_file.datasets.test.tta):            
             number_config_predictions=number_config_predictions*tta_multiplier
-        preds = test_one(config_file)        
+        preds = test_one(config_file, test_real)        
         total_predictions.append(preds)    
         number_predictions+=number_config_predictions
         
@@ -157,7 +163,7 @@ def test(config_files):
     print(f'Total of {number_predictions} predictions made for the test-set')    
     total_predictions = sum(total_predictions)/len(total_predictions)    
     final_preds = [np.argmax(p) for p in total_predictions]
-    print_report(config_files, final_preds)
+    print_report(config_files, final_preds, test_real)
 
 
 if __name__ == '__main__':
@@ -180,5 +186,6 @@ if __name__ == '__main__':
     print("Evaluate using test dataset.")
     # test(config, config.datasets.test.csv)
     test(config_files)
-    # print("Evaluate using real dataset.")
+    print("Evaluate using real dataset.")
+    test(config_files, test_real=True)
     # test(config, config.datasets.real.csv)

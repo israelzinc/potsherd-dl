@@ -7,6 +7,7 @@
         "val_fold": 1
       },
       "test": {
+        "tta":false,        
         "dir": "../input/processed/test/*[jpg,tif]",
         "csv": "../input/processed/test.csv"
       },
@@ -17,9 +18,9 @@
       "label_encoder": "../input/label_encoder.npy"
     },
     "model": {
-      "id": "EFFB7PRO",
-      "type": "efficientnetb7pro",
-      "dir": "../models_extra/",
+      "id": "EFFB7Dropout",
+      "type": "efficientnetb7dropout",
+      "dir": "../models/",
       "size": [400, 400],
       "n_classes": 7
     },
@@ -41,6 +42,6 @@
       "epoch": 2500
     },
     "metrics": {
-        "dir": "../metrics_extra/"
+        "dir": "../metrics/"
       }
   }

@@ -13,11 +13,13 @@ def select(model_type: str, num_classes: int):
         return EfficientNetB0(num_classes)
     elif model_type == "efficientnetb7":
         return EfficientNetB7(num_classes)    
-    elif model_type == "efficientnetb7pro":
-        return EfficientNetB7Pro(num_classes)    
+    elif model_type == "efficientnetb7freeze":
+        return EfficientNetB7Freeze(num_classes)    
     elif model_type == "efficientnetb7regl2":
         return EfficientNetB7REGL2(num_classes)    
     elif model_type == "efficientnetb7regl1":
+        return EfficientNetB7REGL1(num_classes)            
+    elif model_type == "efficientnetb7dropout":
         return EfficientNetB7REGL1(num_classes)            
     else:
         raise ValueError(f"Unsupported model type.")
@@ -131,13 +133,13 @@ class EfficientNetB7(nn.Module):
 
 
 
-class EfficientNetB7Pro(nn.Module):
+class EfficientNetB7Freeze(nn.Module):
     def __init__(self, num_classes):
-        super(EfficientNetB7Pro, self).__init__()
+        super(EfficientNetB7Freeze, self).__init__()
         # self.base = torchvision.models.efficientnet_b7(weights=torchvision.models.EfficientNet_B7_Weights.IMAGENET1K_V1)
         self.base = torchvision.models.efficientnet_b7(pretrained=True)
         for param in self.base.parameters():
-            # print("PARAM!",param)
+            
             param.requires_grad = False
 
         self.base.classifier[1] = nn.Linear(2560, num_classes)
@@ -207,3 +209,25 @@ class EfficientNetB7REGL1(nn.Module):
             return outputs, loss
         return outputs, None
 
+class EfficientNetB7Dropout(nn.Module):
+    def __init__(self, num_classes, dropout_prob=0.5):
+        super(EfficientNetB7, self).__init__()
+        self.base = torchvision.models.efficientnet_b7(pretrained=True)
+        self.dropout = nn.Dropout(dropout_prob)
+        self.base.classifier[1] = nn.Linear(2560, num_classes)
+
+    def loss(self, outputs, targets):
+        if targets is None:
+            return None
+        criterion = nn.CrossEntropyLoss()
+        loss = criterion(outputs, targets)
+        return loss
+
+    def forward(self, image, targets=None):
+        outputs = self.base(image)
+        outputs = self.dropout(outputs)
+        outputs = self.base.classifier[1](outputs)
+        if targets is not None:
+            loss = self.loss(outputs, targets)
+            return outputs, loss
+        return outputs, None
