@@ -1,28 +1,34 @@
 # How to run this program
 
-## Creating conda environment
+## Installing the dependencies
 
 ```console
-$ conda create --name archeological python=3.10
-$ conda activate archeological
-$ conda install -c conda-forge mamba=0.24
-$ mamba install pytorch torchvision torchaudio cudatoolkit=11.6 -c pytorch -c conda-forge
-$ mamba install pandas scikit-learn scikit-learn-intelex tqdm ipykernel albumentations -c conda-forge
+$ pip3 install -r requirements.txt
 ```
 
-alternatively, run
+## Preprocessing the data
+```console
+$./preprocess.py conf/[the selected config file]
+```
+
+## Training a model
 
 ```console
-$ conda env create --file environment.yml
-$ conda activate archeological
+$ ./train.py conf/[the selected config file]
 ```
 
-## Editing Configuration
-
-Edit `config.json` if necessary.
-
-## Creating CSV file of the datasetst
-
+## Testing a model
 ```console
-$ python create_csv.py
+$ ./test.py conf/[the selected config file]
 ```
+
+## Config Files
+A config file is a json with instructions of how you want to train a model. It contains information regarding the following:
+- datasets
+- model
+- Dataloader
+- optimizer
+- scheduler
+- training
+
+For information about each, see the example `test-run.json` located inside the `conf` folder.
