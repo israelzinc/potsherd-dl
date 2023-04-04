@@ -116,14 +116,10 @@ if __name__ == '__main__':
     config.model.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")  # Use 1st GPU    
     # config.model.device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")  # Use 2nd GPU
     # M1/M2 macs
-    # config.model.device = torch.device("mps")  # Use M family
-    # train(config)
-    folds = int(config.datasets.train.num_folds)
-    
-
+    # config.model.device = torch.device("mps")  # Use M family    
+    folds = int(config.datasets.train.num_folds)    
         
-    # for f in range(0,5):            
-    for f in range(0,1):            
+    for f in range(0,folds):                            
         fold_metrics = train(config,f)
         store_metrics(config, fold_metrics, f)        
         
